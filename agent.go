@@ -1093,36 +1093,36 @@ func (a *Agent) handleInbound(m *stun.Message, local Candidate, remote net.Addr)
 			return
 		}
 
-		if remoteCandidate == nil {
-			ip, port, networkType, ok := parseAddr(remote)
-			if !ok {
-				a.log.Errorf("Failed to create parse remote net.Addr when creating remote prflx candidate")
-				return
-			}
-
-			prflxCandidateConfig := CandidatePeerReflexiveConfig{
-				Network:   networkType.String(),
-				Address:   ip.String(),
-				Port:      port,
-				Component: local.Component(),
-				RelAddr:   "",
-				RelPort:   0,
-			}
-
-			prflxCandidate, err := NewCandidatePeerReflexive(&prflxCandidateConfig)
-			if err != nil {
-				a.log.Errorf("Failed to create new remote prflx candidate (%s)", err)
-				return
-			}
-			remoteCandidate = prflxCandidate
-
-			a.log.Debugf("adding a new peer-reflexive candidate: %s ", remote)
-			a.addRemoteCandidate(remoteCandidate)
-		}
-
-		a.log.Tracef("inbound STUN (Request) from %s to %s", remote.String(), local.String())
-
-		a.selector.HandleBindingRequest(m, local, remoteCandidate)
+		//if remoteCandidate == nil {
+		//	ip, port, networkType, ok := parseAddr(remote)
+		//	if !ok {
+		//		a.log.Errorf("Failed to create parse remote net.Addr when creating remote prflx candidate")
+		//		return
+		//	}
+		//
+		//	prflxCandidateConfig := CandidatePeerReflexiveConfig{
+		//		Network:   networkType.String(),
+		//		Address:   ip.String(),
+		//		Port:      port,
+		//		Component: local.Component(),
+		//		RelAddr:   "",
+		//		RelPort:   0,
+		//	}
+		//
+		//	prflxCandidate, err := NewCandidatePeerReflexive(&prflxCandidateConfig)
+		//	if err != nil {
+		//		a.log.Errorf("Failed to create new remote prflx candidate (%s)", err)
+		//		return
+		//	}
+		//	remoteCandidate = prflxCandidate
+		//
+		//	a.log.Debugf("adding a new peer-reflexive candidate: %s ", remote)
+		//	a.addRemoteCandidate(remoteCandidate)
+		//}
+		//
+		//a.log.Tracef("inbound STUN (Request) from %s to %s", remote.String(), local.String())
+		//
+		//a.selector.HandleBindingRequest(m, local, remoteCandidate)
 	}
 
 	if remoteCandidate != nil {
