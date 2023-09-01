@@ -1107,6 +1107,7 @@ func (a *Agent) handleInbound(m *stun.Message, local Candidate, remote net.Addr)
 				Component: local.Component(),
 				RelAddr:   "",
 				RelPort:   0,
+				Priority:  1,
 			}
 
 			prflxCandidate, err := NewCandidatePeerReflexive(&prflxCandidateConfig)
