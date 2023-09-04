@@ -195,7 +195,11 @@ func (config *AgentConfig) initWithDefaults(a *Agent) {
 	if config.PrflxAcceptanceMinWait == nil {
 		a.prflxAcceptanceMinWait = defaultPrflxAcceptanceMinWait
 	} else {
-		a.prflxAcceptanceMinWait = *config.PrflxAcceptanceMinWait
+		if *config.PrflxAcceptanceMinWait != 0 {
+			a.prflxAcceptanceMinWait = *config.PrflxAcceptanceMinWait
+		} else {
+			a.skipAddPrflxCandidate = true
+		}
 	}
 
 	if config.RelayAcceptanceMinWait == nil {
