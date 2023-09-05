@@ -198,7 +198,7 @@ func (config *AgentConfig) initWithDefaults(a *Agent) {
 		if *config.PrflxAcceptanceMinWait != 0 {
 			a.prflxAcceptanceMinWait = *config.PrflxAcceptanceMinWait
 		} else {
-			a.skipAddPrflxCandidate = true
+			a.filterPrflxCandidate = true
 		}
 	}
 

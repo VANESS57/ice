@@ -64,7 +64,7 @@ type Agent struct {
 	prflxAcceptanceMinWait time.Duration
 	relayAcceptanceMinWait time.Duration
 
-	skipAddPrflxCandidate bool
+	filterPrflxCandidate bool
 
 	portMin uint16
 	portMax uint16
@@ -1095,34 +1095,43 @@ func (a *Agent) handleInbound(m *stun.Message, local Candidate, remote net.Addr)
 			return
 		}
 
-		if !a.skipAddPrflxCandidate && remoteCandidate == nil {
+		if remoteCandidate == nil {
 			ip, port, networkType, ok := parseAddr(remote)
 			if !ok {
 				a.log.Errorf("Failed to create parse remote net.Addr when creating remote prflx candidate")
 				return
 			}
-
-			prflxCandidateConfig := CandidatePeerReflexiveConfig{
-				Network:   networkType.String(),
-				Address:   ip.String(),
-				Port:      port,
-				Component: local.Component(),
-				RelAddr:   "",
-				RelPort:   0,
-				Priority:  1,
+			
+			skipAddPrflxCandidate := false
+			if a.filterPrflxCandidate {
+				if c := a.findRemoteCandidate(networkType, remote); c == nil {
+					skipAddPrflxCandidate = true
+				}
 			}
 
-			prflxCandidate, err := NewCandidatePeerReflexive(&prflxCandidateConfig)
-			if err != nil {
-				a.log.Errorf("Failed to create new remote prflx candidate (%s)", err)
-				return
-			}
-			remoteCandidate = prflxCandidate
+			if !skipAddPrflxCandidate {
+				prflxCandidateConfig := CandidatePeerReflexiveConfig{
+					Network:   networkType.String(),
+					Address:   ip.String(),
+					Port:      port,
+					Component: local.Component(),
+					RelAddr:   "",
+					RelPort:   0,
+					Priority:  1,
+				}
 
-			a.log.Debugf("adding a new peer-reflexive candidate: %s ", remote)
-			a.addRemoteCandidate(remoteCandidate)
-		} else if a.skipAddPrflxCandidate {
-			a.log.Debug("skip adding peer-reflexive candidate")
+				prflxCandidate, err := NewCandidatePeerReflexive(&prflxCandidateConfig)
+				if err != nil {
+					a.log.Errorf("Failed to create new remote prflx candidate (%s)", err)
+					return
+				}
+				remoteCandidate = prflxCandidate
+
+				a.log.Debugf("adding a new peer-reflexive candidate: %s ", remote)
+				a.addRemoteCandidate(remoteCandidate)
+			} else {
+				a.log.Debugf("skip adding peer-reflexive candidate: %s", remote)
+			}
 		}
 
 		a.log.Tracef("inbound STUN (Request) from %s to %s", remote.String(), local.String())
